@@ -5,15 +5,33 @@ text = [
 
 ex = "John likes to watch movies. Mary likes movies too. Mary also likes to watch football games."
 
-def bag_of_words(text):
-    bag = {}
-    for row in text:
-        for word in row.split():
-            word = word.lower().strip(".,!?;:")
-            bag[word] = bag.get(word, 0) + 1
-    return bag, set(bag.keys())
+def tokenize(sentence):
+    words = []
+    for w in sentence.split():
+        w = w.lower().strip(".,!?;:")
+        words.append(w)
+    return words
 
-result,unique_tokens = bag_of_words(text)
+def bag_of_words_vector(text):
+    docs = [tokenize(sentence) for sentence in text]
+    
+    # building vocab 
+    vocab = sorted(set(word for doc in docs for word in doc))
+    
+    vectors = []
+    
+    for doc in docs:
+        vec = []
+        for word in vocab:
+            vec.append(doc.count(word))
+        vectors.append(vec)
+        
+    return vocab, vectors
 
-print("Bag of words: ", result)
-print("Unique Tokens[vocab words]: ", len(unique_tokens))
+vocab, vectors = bag_of_words_vector(text)
+
+print("Vocabulary: ", vocab)
+print()
+
+for i, v in enumerate(vectors):
+    print(f"Doc {i + 1} vector: ", v)
