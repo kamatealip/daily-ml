@@ -16,4 +16,4 @@ def bag_of_words(text):
 result,unique_tokens = bag_of_words(text)
 
 print("Bag of words: ", result)
-print("Unique Tokens: ", len(unique_tokens))
+print("Unique Tokens[vocab words]: ", len(unique_tokens))
