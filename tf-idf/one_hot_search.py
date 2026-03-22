@@ -2,6 +2,24 @@ from one_hot_encoding import OneHotEncoding
 
 
 class OneHotSearch(OneHotEncoding):
+    STOPWORDS = {
+        "a",
+        "an",
+        "and",
+        "for",
+        "in",
+        "of",
+        "on",
+        "the",
+        "to",
+        "using",
+        "with",
+    }
+
+    def _tokenize(self, sentence):
+        tokens = super()._tokenize(sentence)
+        return [token for token in tokens if token not in self.STOPWORDS]
+
     def cosine_similarity(self, sentence_a, sentence_b):
         vector_a = self.multi_hot_vector(sentence_a)
         vector_b = self.multi_hot_vector(sentence_b)
@@ -18,31 +36,37 @@ class OneHotSearch(OneHotEncoding):
 
         return dot_product / (magnitude_a * magnitude_b)
 
-    def search(self, query, top_k=3):
+    def _rank_sentences(self, source_text, top_k=3, skip_sentence=None):
         results = []
 
         for sentence in self.data:
-            score = self.cosine_similarity(query, sentence)
-            results.append((sentence, score))
-
-        results.sort(key=lambda item: item[1], reverse=True)
-        return results[:top_k]
-
-    def recommend(self, liked_sentence, top_k=2):
-        results = []
-
-        for sentence in self.data:
-            if sentence == liked_sentence:
+            if sentence == skip_sentence:
                 continue
 
-            score = self.cosine_similarity(liked_sentence, sentence)
-            results.append((sentence, score))
+            score = self.cosine_similarity(source_text, sentence)
+            if score > 0:
+                results.append((sentence, score))
 
         results.sort(key=lambda item: item[1], reverse=True)
         return results[:top_k]
+
+    def search(self, query, top_k=3):
+        return self._rank_sentences(query, top_k=top_k)
+
+    def recommend(self, liked_sentence, top_k=2):
+        return self._rank_sentences(
+            liked_sentence, top_k=top_k, skip_sentence=liked_sentence
+        )
+
+    def recommend_from_query(self, query, top_k=3):
+        return self._rank_sentences(query, top_k=top_k)
 
 
 def print_results(results):
+    if not results:
+        print("No matching results found.")
+        return
+
     for rank, (sentence, score) in enumerate(results, start=1):
         print(f"{rank}. {sentence} -> similarity score: {score:.3f}")
 
@@ -60,37 +84,42 @@ def get_operation():
     return None
 
 
-def get_liked_item(search_engine):
+def get_recommendation_input(search_engine):
     print("Available items:")
     for index, sentence in enumerate(search_engine.data, start=1):
         print(f"{index}. {sentence}")
 
     user_input = input(
-        "Enter an item number or describe what you like: "
+        "Enter an item number or type a topic like python or javascript: "
     ).strip()
 
     if user_input.isdigit():
         selected_index = int(user_input) - 1
         if 0 <= selected_index < len(search_engine.data):
-            return search_engine.data[selected_index]
+            return ("item", search_engine.data[selected_index])
         return None
 
-    closest_match = search_engine.search(user_input, top_k=1)
-    if not closest_match or closest_match[0][1] == 0:
+    normalized_input = " ".join(search_engine._tokenize(user_input))
+    if not normalized_input:
         return None
 
-    liked_sentence = closest_match[0][0]
-    print(f"Using the closest match: {liked_sentence}")
-    return liked_sentence
+    for sentence in search_engine.data:
+        if normalized_input == " ".join(search_engine._tokenize(sentence)):
+            return ("item", sentence)
+
+    return ("query", user_input)
 
 
 if __name__ == "__main__":
     data = [
         "python basics for beginners",
         "advanced python for data analysis",
-        "javascript for web development",
         "machine learning with python",
         "data science projects using python",
+        "javascript for web development",
+        "frontend projects with javascript",
+        "react and javascript user interface design",
+        "node javascript backend development",
     ]
 
     search_engine = OneHotSearch(data)
@@ -107,14 +136,20 @@ if __name__ == "__main__":
             print("Search results:")
             print_results(search_engine.search(query))
         elif operation == "recommend":
-            liked_course = get_liked_item(search_engine)
+            recommendation_input = get_recommendation_input(search_engine)
             print()
 
-            if liked_course is None:
+            if recommendation_input is None:
                 print("Could not find a matching item for recommendation.")
             else:
-                print("Recommendations based on:", liked_course)
-                print_results(search_engine.recommend(liked_course))
+                input_type, value = recommendation_input
+
+                if input_type == "item":
+                    print("Recommendations based on:", value)
+                    print_results(search_engine.recommend(value, top_k=3))
+                else:
+                    print("Recommendations for topic:", value)
+                    print_results(search_engine.recommend_from_query(value, top_k=3))
         else:
             print("Invalid choice. Please select search or recommend.")
 
