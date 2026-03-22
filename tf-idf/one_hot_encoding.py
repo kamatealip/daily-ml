@@ -7,10 +7,18 @@ class OneHotEncoding:
             word: index for index, word in enumerate(self._vocabulary)
         }
 
+    def _tokenize(self, sentence):
+        tokens = []
+        for word in sentence.split():
+            token = word.lower().strip(".,!?;:")
+            if token:
+                tokens.append(token)
+        return tokens
+
     def _build_corpus(self):
         corpus = []
         for sentence in self.data:
-            corpus.extend(sentence.split())
+            corpus.extend(self._tokenize(sentence))
         return corpus
 
     def _build_vocabulary(self):
@@ -31,17 +39,18 @@ class OneHotEncoding:
 
     def one_hot_vector(self, word):
         vector = [0] * len(self._vocabulary)
-        index = self._word_to_index.get(word)
+        token = word.lower().strip(".,!?;:")
+        index = self._word_to_index.get(token)
         if index is not None:
             vector[index] = 1
         return vector
 
     def encode_sentence(self, sentence):
-        return [self.one_hot_vector(word) for word in sentence.split()]
+        return [self.one_hot_vector(word) for word in self._tokenize(sentence)]
 
     def multi_hot_vector(self, sentence):
         vector = [0] * len(self._vocabulary)
-        for word in sentence.split():
+        for word in self._tokenize(sentence):
             index = self._word_to_index.get(word)
             if index is not None:
                 vector[index] = 1
