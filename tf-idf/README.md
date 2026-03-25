@@ -25,6 +25,9 @@ This folder contains simple Python examples for common NLP text encoding and sea
 - `tfidf_vectorizer.py`  
   Demonstrates TF-IDF vectorization by building a vocabulary, calculating IDF scores, and generating TF-IDF vectors for documents.
 
+- `tfidf_vectorizer_example.py`  
+  Shows how to import the TF-IDF vectorizer and use it on a small corpus plus a new query sentence.
+
 ## Run the examples
 
 Use Python to run any file:
@@ -37,6 +40,7 @@ python ngram_encoding.py
 python ngram_search.py
 python tf_search.py
 python tfidf_vectorizer.py
+python tfidf_vectorizer_example.py
 ```
 
 ## What the TF-IDF example shows
