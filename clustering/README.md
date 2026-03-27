@@ -1,11 +1,12 @@
-# Clustering And KNN Visual Playground
+# Clustering Examples And KNN Visual Playground
 
-This project contains two small interactive machine learning demos built with Python and Pygame:
+This project contains small machine learning examples built with Python:
 
 - `clustering_example.py` shows how K-Means clustering groups unlabeled points.
+- `hierarchical_clustering_example.py` shows a simple agglomerative hierarchical clustering example.
 - `knn_example.py` shows how K-Nearest Neighbors predicts a label for a query point using nearby labeled samples.
 
-The goal of the project is to make the ideas visual and easy to explore by clicking, moving the mouse, and changing parameters in real time.
+The goal of the project is to make the ideas easy to explore and learn. The K-Means and KNN demos are interactive Pygame visualizations, while the hierarchical clustering example is a small console script that prints each merge step.
 
 ## Technologies Used
 
@@ -18,6 +19,7 @@ There is no external machine learning framework in this project. The algorithms 
 ## Project Files
 
 - `clustering_example.py`: interactive K-Means visualization
+- `hierarchical_clustering_example.py`: simple hierarchical clustering example in plain Python
 - `knn_example.py`: interactive KNN visualization
 
 ## How K-Means Works In This Project
@@ -38,6 +40,23 @@ In the visualization:
 - Bright cross-shaped markers are the centroids.
 - Colored lines connect each point to its current centroid.
 - The centroid positions animate as the algorithm updates.
+
+## How Hierarchical Clustering Works In This Project
+
+`hierarchical_clustering_example.py` demonstrates agglomerative hierarchical clustering.
+
+It works like this:
+
+1. Each point starts as its own cluster.
+2. The program finds the two closest clusters.
+3. Those two clusters are merged into one larger cluster.
+4. The process repeats until the target number of clusters remains.
+
+In this example:
+
+- A small list of 2D points is built directly into the script.
+- Single-link distance is used, so cluster distance is based on the closest pair of points between two clusters.
+- Each merge step is printed so you can follow the algorithm.
 
 ## How KNN Works In This Project
 
@@ -73,6 +92,12 @@ Run the K-Means demo:
 
 ```bash
 python clustering_example.py
+```
+
+Run the hierarchical clustering example:
+
+```bash
+python hierarchical_clustering_example.py
 ```
 
 Run the KNN demo:
